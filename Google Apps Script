@@ -1,0 +1,128 @@
+//Generate Daily TikTok Report
+function generateDailyTikTokReport() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('TikTok Daily Tracker');
+  var reportsSheet = spreadsheet.getSheetByName('Reports');
+
+  var lastRow = sheet.getLastRow();
+
+  var date = sheet.getRange(lastRow, 2).getValue();
+  var netRevenue = sheet.getRange(lastRow, 3).getValue();
+  var numOfOrders = sheet.getRange(lastRow, 4).getValue();
+  var influencersLive = sheet.getRange(lastRow, 5).getValue();
+  var AOV = netRevenue / numOfOrders;
+  var netRevenueAffiliates = sheet.getRange(lastRow, 7).getValue();
+  var netRevenueTikTokAds = netRevenue - netRevenueAffiliates;
+  var spend = sheet.getRange(lastRow, 9).getValue();
+  var ROAS = netRevenueTikTokAds / spend; // Corrected ROAS calculation
+
+  var formattedDate = Utilities.formatDate(new Date(date), "Asia/Manila", "MMM dd");
+  var dailyReport = "Daily performance | " + formattedDate + "\n";
+  dailyReport += "-Net Revenue: $" + netRevenue + "\n";
+  dailyReport += "-# of Orders: " + numOfOrders + "\n";
+  dailyReport += "-# of Influencers went live: " + influencersLive + "\n";
+  dailyReport += "-AOV: $" + AOV.toFixed(2) + "\n";
+  dailyReport += "-Net Revenue from Affiliates: $" + netRevenueAffiliates + "\n";
+  dailyReport += "-Net Revenue from TikTok Ads: $" + netRevenueTikTokAds + "\n";
+  dailyReport += "-TikTok Ad Spend: $" + spend + "\n";
+  dailyReport += "-ROAS: " + ROAS.toFixed(2);
+
+  reportsSheet.getRange(5,6).setValue(dailyReport);
+}
+
+//Generate Monthly TikTok Report
+// Function to calculate start and end dates for the current month
+function calculateDateRange() {
+  var today = new Date();
+  var currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed, so we add 1
+
+  // Calculate the start and end dates of the current month
+  var startDate = new Date(today.getFullYear(), currentMonth - 1, 1); // -1 because months are 0-indexed
+  var endDate = today;
+
+  return { startDate: startDate, endDate: endDate };
+}
+
+// Function to find the last data entry date for the current month
+function findLastDataEntryDate(sheet, startDate, endDate) {
+  var lastRow = sheet.getLastRow();
+  var lastDataEntryDate = startDate; // Initialize with the start date
+
+  for (var i = lastRow; i >= 2; i--) {
+    var date = sheet.getRange(i, 2).getValue();
+    var dateObj = new Date(date);
+
+    if (dateObj >= startDate && dateObj <= endDate) {
+      // Row falls within the current month
+      lastDataEntryDate = dateObj;
+      break; // Exit the loop once the last entry for the month is found
+    }
+  }
+
+  return lastDataEntryDate;
+}
+
+// Function to generate monthly report
+function generateMonthlyTikTokReport() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName('TikTok Daily Tracker');
+  var reportsSheet = spreadsheet.getSheetByName('Reports');
+
+  // Get the last row with data
+  var lastRow = sheet.getLastRow();
+
+  // Calculate start and end dates for the current month
+  var dateRange = calculateDateRange();
+  var startDate = dateRange.startDate;
+  var endDate = dateRange.endDate;
+
+  // Initialize totals
+  var netRevenueTotal = 0;
+  var numOfOrdersTotal = 0;
+  var influencersLiveTotal = 0;
+  var netRevenueAffiliatesTotal = 0;
+  var spendTotal = 0;
+
+  // Loop through each row to calculate totals for the current month
+  for (var i = 2; i <= lastRow; i++) {
+    var rowValues = sheet.getRange(i, 2, 1, 9).getValues()[0];
+    var dateObj = new Date(rowValues[0]);
+
+    if (dateObj >= startDate && dateObj <= endDate) {
+      // Row falls within the current month
+      var netRevenue = rowValues[1];
+      var numOfOrders = rowValues[2];
+      var influencersLive = rowValues[3];
+      var netRevenueAffiliates = rowValues[5];
+      var spend = rowValues[7];
+
+      netRevenueTotal += netRevenue;
+      numOfOrdersTotal += numOfOrders;
+      influencersLiveTotal += influencersLive;
+      netRevenueAffiliatesTotal += netRevenueAffiliates;
+      spendTotal += spend;
+    }
+  }
+
+  // Calculate averages
+  var AOV = numOfOrdersTotal !== 0 ? netRevenueTotal / numOfOrdersTotal : 0;
+  var netRevenueTikTokAdsTotal = netRevenueTotal - netRevenueAffiliatesTotal;
+  var ROAS = spendTotal !== 0 ? netRevenueTikTokAdsTotal / spendTotal : 0; // Corrected ROAS calculation
+
+  // Generate monthly report
+  var formattedStartDate = Utilities.formatDate(startDate, "Asia/Manila", "MMM dd");
+  var lastDataEntryDate = findLastDataEntryDate(sheet, startDate, endDate);
+  var formattedEndDate = Utilities.formatDate(lastDataEntryDate, "Asia/Manila", "MMM dd");
+  var monthlyReport = "Monthly Performance | " + formattedStartDate + " - " + formattedEndDate + "\n";
+  monthlyReport += "-Net Revenue: $" + (isNaN(netRevenueTotal) ? 0 : netRevenueTotal.toFixed(2)) + "\n";
+  monthlyReport += "-# of Orders: " + numOfOrdersTotal + "\n";
+  monthlyReport += "-# of Influencers went live: " + influencersLiveTotal + "\n";
+  monthlyReport += "-AOV: $" + AOV.toFixed(2) + "\n";
+  monthlyReport += "-Net Revenue from Affiliates: $" + (isNaN(netRevenueAffiliatesTotal) ? 0 : netRevenueAffiliatesTotal.toFixed(2)) + "\n";
+  monthlyReport += "-Net Revenue from TikTok Ads: $" + (isNaN(netRevenueTikTokAdsTotal) ? 0 : netRevenueTikTokAdsTotal.toFixed(2)) + "\n";
+  monthlyReport += "-TikTok Ad Spend: $" + (isNaN(spendTotal) ? 0 : spendTotal.toFixed(2)) + "\n";
+  monthlyReport += "-ROAS: " + (isNaN(ROAS) ? "-" : ROAS.toFixed(2));
+
+  // Add the monthly report to the "Reports" sheet
+  reportsSheet.getRange(7, 6).setValue(monthlyReport); // Adjust the column as needed
+}
