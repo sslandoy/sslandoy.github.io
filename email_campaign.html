@@ -14,6 +14,7 @@
         }
         table {
             width: 100%;
+            border-collapse: collapse;
         }
         .container {
             max-width: 600px;
@@ -23,6 +24,7 @@
         }
         .header-image {
             width: 100%;
+            border-radius: 5px;
         }
         .header-text {
             color: #ffffff;
@@ -51,19 +53,27 @@
     <table>
         <tr>
             <td>
-                <div class="container">
-                    <img src="path/to/your/header-image.jpg" alt="Special Offer Header Image" class="header-image">
-                    <div class="header-text">Win a $50 Amazon Gift Card</div>
-                    <div class="content">
-                        <p>Dear [Recipient],</p>
-                        <p>Discover our exclusive offer just for you! For a limited time, enjoy special discounts on our top products.</p>
-                        <img src="path/to/your/content-image.jpg" alt="Special Offer Content Image" style="max-width: 100%;">
-                        <p>Don't miss out on this amazing opportunity. Click the button below to shop now!</p>
-                        <a href="https://your-website.com/shop" class="cta-button">Shop Now</a>
-                        <p>If you have any questions or need assistance, feel free to contact our customer support team at support@yourcompany.com.</p>
-                        <p>Thank you for choosing Your Company!</p>
-                    </div>
-                </div>
+                <table class="container">
+                    <tr>
+                        <td>
+                            <img src="img/EmailTest_img5.png" alt="Special Offer Header Image" class="header-image">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="header-text">Win a $50 Amazon Gift Card</td>
+                    </tr>
+                    <tr>
+                        <td class="content">
+                            <p>Dear [Recipient],</p>
+                            <p>Discover our exclusive offer just for you! For a limited time, enjoy special discounts on our top products.</p>
+                            <img src="path/to/your/content-image.jpg" alt="Special Offer Content Image" style="max-width: 100%;">
+                            <p>Don't miss out on this amazing opportunity. Click the button below to shop now!</p>
+                            <a href="https://your-website.com/shop" class="cta-button">Shop Now</a>
+                            <p>If you have any questions or need assistance, feel free to contact our customer support team at support@yourcompany.com.</p>
+                            <p>Thank you for choosing Your Company!</p>
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>
